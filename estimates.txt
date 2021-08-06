@@ -1,0 +1,17 @@
+Write a paragraph or two describing the achievable Recovery Time Objective (RTO) and Recovery Point Objective (RPO) for this Multi-AZ, multi-region database in terms of:
+
+Minimum RTO for a single AZ outage
+Sits within the AWS platform to detect the outage and not route trafic to the affected AZ. I would expect that to be very fast. Minimum time: a matter of seconds, properly less.
+  
+Minimum RTO for a single region outage
+If it is the secondary region then no impact on availability
+If it is the primary region then it will be a matter of promoting the MySQL read replica to act as the primary database and point any services and applications towards that database. Minimum time, around 5-10 min.
+
+Minimum RPO for a single AZ outage
+Syncronisation between the DB instances in the multi-AZ setup should make this very minimal. I guess it may be possible to loose a transaction 'in flight' as a particular DB crashes (depends on AWS implementation). Worst case less than 100 ms but in general no data loss.
+
+Minimum RPO for a single region outage
+If it is the secondary region then no data loss.
+If it is the primary region:
+- If it is the DB that goes down then it will be a matter of promoting the MySQL read replica to act as the primary database and point any services and applications towards that database. During the time it takes to set this up we will loose data. Minimum RPO 5-10 min. 
+- If it not the DB but other services and applications that becomes unavailable and can't feed the DB then the RPO is not affected, that is, no data loss.
